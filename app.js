@@ -3,6 +3,10 @@ var express = require('express');
 var path = require('path');
 var cookieParser = require('cookie-parser');
 var logger = require('morgan');
+var passport = require('passport');
+var LocalStrategy = require('passport-local').Strategy;
+const AccountModel = require('./models/account');
+const jwt = require('jsonwebtoken');
 
 var indexRouter = require('./routes/index');
 var usersRouter = require('./routes/users');
@@ -19,16 +23,53 @@ app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
 
+app.get('/login', (req, res, next) => {
+  res.render('index')
+});
+
+// Apply passportjs local
+passport.use(new LocalStrategy(
+  function (username, password, done) {
+    AccountModel.findOne({
+      username: username,
+      password: password
+    })
+      .then(data => {
+        if (!data) done(null, false)
+        done(null, data)
+      })
+      .catch(err => {
+        done(err);
+      })
+  }
+));
+
+app.post('/login', function (req, res, next) {
+  passport.authenticate('local', function (err, user) {
+    if (err) { return res.status(500).json('Server error') }
+    if (!user) { return res.json("Wrong account"); }
+
+    jwt.sign(user.toObject(), 'secret_password_here', function (err, token) {
+      if (err)
+        return res.status(500).json('Server error');
+
+      return res.json(token);
+    });
+
+
+  })(req, res, next);
+});
+
 app.use('/', indexRouter);
 app.use('/users', usersRouter);
 
 // catch 404 and forward to error handler
-app.use(function(req, res, next) {
+app.use(function (req, res, next) {
   next(createError(404));
 });
 
 // error handler
-app.use(function(err, req, res, next) {
+app.use(function (err, req, res, next) {
   // set locals, only providing error in development
   res.locals.message = err.message;
   res.locals.error = req.app.get('env') === 'development' ? err : {};
