@@ -6,13 +6,55 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Login</title>
 </head>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
 
 <body>
-  <form action="" method="POST">
+  <form>
     <input type="text" name="username" id="username">
     <input type="text" name="password" id="password">
-    <button type="submit">Login</button>
+    <button type="button" id="btn">Login</button>
   </form>
+
+  <button id="getDataBtn"> Get data</button>
 </body>
+
+<script>
+  $("#btn").click(function () {
+    var username = $("#username").val();
+    var password = $("#password").val();
+
+    $.ajax({
+      url: '/login',
+      type: 'POST',
+      data: {
+        username: username,
+        password: password
+      }
+    })
+      .then(data => {
+        console.log(data);
+        localStorage.setItem('token', data)
+      })
+      .catch(err => {
+        console.log(err);
+      })
+  });
+
+  $('#getDataBtn').click(function () {
+    $.ajax({
+      url: '/private',
+      type: 'GET',
+      headers: {
+        authorization: 'Bearer ' + localStorage.getItem('token')
+      }
+    }).then(data => {
+      console.log('Data: ', data);
+    })
+      .catch(err => {
+        console.log(err);
+      })
+  })
+
+</script>
 
 </html>

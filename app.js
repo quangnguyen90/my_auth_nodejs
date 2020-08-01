@@ -60,6 +60,16 @@ app.post('/login', function (req, res, next) {
   })(req, res, next);
 });
 
+app.get('/private', (req, res, next) => {
+  var token = req.headers['authorization'].split(' ')[1];
+  jwt.verify(token, 'secret_password_here', function (err, data) {
+    if (err) res.status(500).json('Invalid token');
+    next();
+  })
+}, (req, res, next) => {
+  res.json('Secret data here');
+});
+
 app.use('/', indexRouter);
 app.use('/users', usersRouter);
 
