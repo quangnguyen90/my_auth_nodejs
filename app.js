@@ -5,6 +5,7 @@ var cookieParser = require('cookie-parser');
 var logger = require('morgan');
 var passport = require('passport');
 var LocalStrategy = require('passport-local').Strategy;
+var FacebookStrategy = require('passport-facebook').Strategy;
 const AccountModel = require('./models/account');
 const jwt = require('jsonwebtoken');
 
@@ -27,6 +28,25 @@ app.get('/login', (req, res, next) => {
   res.render('index')
 });
 
+app.use(require('express-session')({
+  secret: 'keyboard cat',
+  resave: true,
+  saveUninitialized: true
+}));
+
+app.use(passport.initialize());
+app.use(passport.session());
+
+// used to serialize the user for the session
+passport.serializeUser(function(user, done) {
+  done(null, user);
+});
+
+// used to deserialize the user
+passport.deserializeUser(function(id, done) {
+  done(null, user);
+});
+
 // Apply passportjs local
 passport.use(new LocalStrategy(
   function (username, password, done) {
@@ -43,6 +63,30 @@ passport.use(new LocalStrategy(
       })
   }
 ));
+
+// Apply passportjs Facebook
+passport.use(new FacebookStrategy({
+  // Setting FB APP ID & FB APP SECRET HERE
+  clientID: '1436352583231532', //FACEBOOK_APP_ID
+  clientSecret: `91fa254d1e52d5474ba0a16c91cec637`, //FACEBOOK_APP_SECRET
+  callbackURL: "https://13fcdcaf4731.ngrok.io/auth/facebook/callback"
+},
+function(accessToken, refreshToken, profile, cb) {
+  console.log(profile);
+  cb(null, profile._json);
+}
+));
+
+app.get('/auth/facebook',
+  passport.authenticate('facebook'));
+
+app.get('/auth/facebook/callback',
+  passport.authenticate('facebook', { failureRedirect: '/login' }),
+  function(req, res) {
+    // Successful authentication, redirect home.
+    console.log(req.user);
+    res.redirect('/');
+  });
 
 app.post('/login', function (req, res, next) {
   passport.authenticate('local', function (err, user) {
