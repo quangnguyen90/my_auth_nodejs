@@ -47,16 +47,16 @@ passport.use(new LocalStrategy(
 app.post('/login', function (req, res, next) {
   passport.authenticate('local', function (err, user) {
     if (err) { return res.status(500).json('Server error') }
-    if (!user) { return res.json("Wrong account"); }
+    if (!user) { return res.status(500).json("Wrong account"); }
 
-    jwt.sign(user.toObject(), 'secret_password_here', function (err, token) {
-      if (err)
-        return res.status(500).json('Server error');
+    if (user) {
+      jwt.sign(user.toObject(), 'secret_password_here', function (err, token) {
+        if (err)
+          return res.status(500).json('Server error');
 
-      return res.json(token);
-    });
-
-
+        return res.json(token);
+      });
+    }
   })(req, res, next);
 });
 
