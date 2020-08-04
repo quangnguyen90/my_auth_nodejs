@@ -38,12 +38,12 @@ app.use(passport.initialize());
 app.use(passport.session());
 
 // used to serialize the user for the session
-passport.serializeUser(function(user, done) {
+passport.serializeUser(function (user, done) {
   done(null, user);
 });
 
 // used to deserialize the user
-passport.deserializeUser(function(id, done) {
+passport.deserializeUser(function (user, done) {
   done(null, user);
 });
 
@@ -71,10 +71,10 @@ passport.use(new FacebookStrategy({
   clientSecret: FACEBOOK_APP_SECRET,
   callbackURL: "https://13fcdcaf4731.ngrok.io/auth/facebook/callback"
 },
-function(accessToken, refreshToken, profile, cb) {
-  console.log(profile);
-  cb(null, profile._json);
-}
+  function (accessToken, refreshToken, profile, cb) {
+    console.log(profile);
+    cb(null, profile._json);
+  }
 ));
 
 app.get('/auth/facebook',
@@ -82,7 +82,7 @@ app.get('/auth/facebook',
 
 app.get('/auth/facebook/callback',
   passport.authenticate('facebook', { failureRedirect: '/login' }),
-  function(req, res) {
+  function (req, res) {
     // Successful authentication, redirect home.
     console.log(req.user);
     res.redirect('/');
