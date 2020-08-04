@@ -67,8 +67,8 @@ passport.use(new LocalStrategy(
 // Apply passportjs Facebook
 passport.use(new FacebookStrategy({
   // Setting FB APP ID & FB APP SECRET HERE
-  clientID: '1436352583231532', //FACEBOOK_APP_ID
-  clientSecret: `91fa254d1e52d5474ba0a16c91cec637`, //FACEBOOK_APP_SECRET
+  clientID: FACEBOOK_APP_ID,
+  clientSecret: FACEBOOK_APP_SECRET,
   callbackURL: "https://13fcdcaf4731.ngrok.io/auth/facebook/callback"
 },
 function(accessToken, refreshToken, profile, cb) {
