@@ -69,9 +69,11 @@ passport.use(new FacebookStrategy({
   // Setting FB APP ID & FB APP SECRET HERE
   clientID: FACEBOOK_APP_ID,
   clientSecret: FACEBOOK_APP_SECRET,
-  callbackURL: "https://13fcdcaf4731.ngrok.io/auth/facebook/callback"
+  callbackURL: "https://13fcdcaf4731.ngrok.io/auth/facebook/callback",
+  profileFields: ['id', 'displayName', 'photos', 'email'] // Default: To get more data from FB return
 },
   function (accessToken, refreshToken, profile, cb) {
+
     console.log(profile);
     cb(null, profile._json);
   }
@@ -87,6 +89,11 @@ app.get('/auth/facebook/callback',
     console.log(req.user);
     res.redirect('/');
   });
+
+// Test get request user info after login by FB
+app.get('home', (req, res, next) => {
+  res.json(req.user);
+});
 
 app.post('/login', function (req, res, next) {
   passport.authenticate('local', function (err, user) {
